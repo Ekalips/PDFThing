@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:card_view="http://schemas.android.com/tools"
+    card_view:cardCornerRadius="2dp">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="8dp">
+    <LinearLayout
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:layout_width="0px"
+        android:layout_height="0px"/> <!--for gaining focus!-->
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:scaleType="center"
+            android:id="@+id/image"
+            android:src="@drawable/add_iamge"
+            android:layout_weight="0.3"/>
+        <EditText
+            android:layout_margin="4dp"
+            android:gravity="top"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/comment"
+            android:layout_weight="0.7"
+            android:inputType="textMultiLine|textCapSentences"
+            android:hint="Enter comment here"
+            android:nextFocusUp="@id/comment"
+            android:background="@android:color/transparent"
+            android:nextFocusLeft="@id/comment"/>
+</LinearLayout>
+</android.support.v7.widget.CardView>
