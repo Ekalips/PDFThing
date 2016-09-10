@@ -1,8 +1,12 @@
 package com.ekalips.pdfthing;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -17,6 +21,10 @@ import android.preference.PreferenceManager;
 import android.print.PrintAttributes;
 import android.print.pdf.PrintedPdfDocument;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -61,6 +69,64 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 3: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //saveToPDF();
+                } else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle("Error!")
+                            .setMessage("Sorry, but you need to grant permission to chose image")
+                            .setIcon(R.mipmap.ic_launcher)
+                            .setCancelable(false)
+                            .setPositiveButton("OK",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            ActivityCompat.requestPermissions((Activity) context,
+                                                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 3);
+                                        }
+                                    })
+                            .setNegativeButton("NO", null);
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                }
+                break;
+            }
+            case 4:
+            {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    saveToPDF();
+                } else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle("Error!")
+                            .setMessage("Sorry, but you need to grant permission to save PDF")
+                            .setIcon(R.mipmap.ic_launcher)
+                            .setCancelable(false)
+                            .setPositiveButton("OK",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            ActivityCompat.requestPermissions((Activity) context,
+                                                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},4);
+                                        }
+                                    })
+                            .setNegativeButton("NO",null);
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                }
+                break;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
+
     private void initToolbar() {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
@@ -82,36 +148,16 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.action_save:
-                Toast.makeText(context,"Saving PDF to /0/ folder",Toast.LENGTH_SHORT).show();
-                PrintAttributes printAttrs = new PrintAttributes.Builder().
-                        setColorMode(PrintAttributes.COLOR_MODE_COLOR).
-                        setMediaSize(PrintAttributes.MediaSize.ISO_A4).
-                        setResolution(new PrintAttributes.Resolution("zooey", PRINT_SERVICE, 450, 700)).
-                        setMinMargins(PrintAttributes.Margins.NO_MARGINS).
-                        build();
-
-                PdfDocument document = new PrintedPdfDocument(MainActivity.this, printAttrs);
-
-
-
-                for (int i = 0; i < recyclerView.getLayoutManager().getChildCount(); i++) {
-                    View content = recyclerView.getLayoutManager().getChildAt(i);
-
-                    PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(content.getWidth(), content.getHeight(), 1).create();
-                    PdfDocument.Page page = document.startPage(pageInfo);
-                    content.draw(page.getCanvas());
-                    document.finishPage(page);
+                if (ContextCompat.checkSelfPermission(context,
+                        Manifest.permission.READ_EXTERNAL_STORAGE)
+                        == PackageManager.PERMISSION_GRANTED) {
+                    saveToPDF();
                 }
-
-
-                PDFSaverTask task = new PDFSaverTask(context, new PDFSaverTask.AsyncResponse() {
-                    @Override
-                    public void processFinish(String output) {
-                        Toast.makeText(context,"PDF saved",Toast.LENGTH_LONG).show();
-                    }
-                });
-                task.execute(document);
-
+                else
+                {
+                    ActivityCompat.requestPermissions( this,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},4);
+                }
 
 
 
@@ -125,6 +171,38 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    public void saveToPDF()
+    {
+        Toast.makeText(context, "Saving PDF to /0/ folder", Toast.LENGTH_SHORT).show();
+        PrintAttributes printAttrs = new PrintAttributes.Builder().
+                setColorMode(PrintAttributes.COLOR_MODE_COLOR).
+                setMediaSize(PrintAttributes.MediaSize.ISO_A4).
+                setResolution(new PrintAttributes.Resolution("zooey", PRINT_SERVICE, 450, 700)).
+                setMinMargins(PrintAttributes.Margins.NO_MARGINS).
+                build();
+
+        PdfDocument document = new PrintedPdfDocument(MainActivity.this, printAttrs);
+
+
+        for (int i = 0; i < recyclerView.getLayoutManager().getChildCount(); i++) {
+            View content = recyclerView.getLayoutManager().getChildAt(i);
+
+            PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(content.getWidth(), content.getHeight(), 1).create();
+            PdfDocument.Page page = document.startPage(pageInfo);
+            content.draw(page.getCanvas());
+            document.finishPage(page);
+        }
+
+
+        PDFSaverTask task = new PDFSaverTask(context, new PDFSaverTask.AsyncResponse() {
+            @Override
+            public void processFinish(String output) {
+                Toast.makeText(context, "PDF saved", Toast.LENGTH_LONG).show();
+            }
+        });
+        task.execute(document);
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

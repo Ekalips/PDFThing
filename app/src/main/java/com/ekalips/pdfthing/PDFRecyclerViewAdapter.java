@@ -1,13 +1,17 @@
 package com.ekalips.pdfthing;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.util.LruCache;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -77,15 +81,25 @@ public class PDFRecyclerViewAdapter extends RecyclerView.Adapter<PDFRecyclerView
             holder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent i = new Intent(
-                            Intent.ACTION_PICK,
-                            android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-                    SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putInt("position", holder.getAdapterPosition());
-                    editor.apply();
 
-                    ((Activity) context).startActivityForResult(i,REQUEST_IMAGE_ACTIVITY_CODE);
+
+                    if (ContextCompat.checkSelfPermission(context,
+                            Manifest.permission.READ_EXTERNAL_STORAGE)
+                            == PackageManager.PERMISSION_GRANTED) {
+                        Intent i = new Intent(
+                                Intent.ACTION_PICK,
+                                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putInt("position", holder.getAdapterPosition());
+                        editor.apply();
+                        ((Activity) context).startActivityForResult(i,REQUEST_IMAGE_ACTIVITY_CODE);
+                    }
+                    else
+                    {
+                        ActivityCompat.requestPermissions((Activity) context,
+                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},3);
+                    }
                 }
             });
         }

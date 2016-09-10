@@ -45,7 +45,7 @@ public class PDFSaverTask extends AsyncTask<PdfDocument, Void, Boolean> {
                 FileOutputStream out = null;
                 try {
                     Calendar c = Calendar.getInstance();
-                    File file = new File(Environment.getExternalStorageDirectory().toString() , new Random().nextInt() + ".pdf");
+                    File file = new File(Environment.getExternalStorageDirectory().toString() , System.currentTimeMillis() + ".pdf");
                     out = new FileOutputStream(file);
                     try {
                         pdfDocuments[0].writeTo(out);
