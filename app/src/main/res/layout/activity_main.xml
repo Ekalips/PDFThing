@@ -16,7 +16,8 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"/>
+            android:background="?attr/colorPrimary"
+            app:layout_scrollFlags="scroll|enterAlways"/>
 
     </android.support.design.widget.AppBarLayout>
 
@@ -28,5 +29,76 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:id="@+id/recycler_view"/>
+        android:id="@+id/recycler_view"
+        />
+
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <!-- Any Fab is OK. (Third party library, your custom view and so on) -->
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_margin="16dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/action_image"
+            android:padding="8dp"
+            app:backgroundTint="@color/colorPrimary"
+            app:borderWidth="0dp" />
+
+        <!-- You must wrap transform view in Circular reveal container -->
+        <io.codetail.widget.RevealFrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true">
+
+            <!-- Transform view -->
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar_footer"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:background="@color/colorPrimary"
+                android:visibility="invisible"
+                android:layout_gravity="center"
+                android:gravity="center">
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:gravity="center">
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/add_icon"
+                    android:id="@+id/add_page_btn"
+                    android:background="@android:color/transparent"
+                    android:layout_margin="16dp"/>
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/save_icon"
+                    android:id="@+id/save_btn"
+                    android:background="@android:color/transparent"
+                    android:layout_margin="16dp"/>
+                    <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                        android:id="@+id/new_file_btn"
+                        android:src="@drawable/new_file_icon"
+                        android:background="@android:color/transparent"
+                        android:layout_margin="16dp"/>
+                </LinearLayout>
+            </android.support.v7.widget.Toolbar>
+
+        </io.codetail.widget.RevealFrameLayout>
+    </RelativeLayout>
+
+
+
+
+
 </android.support.design.widget.CoordinatorLayout>

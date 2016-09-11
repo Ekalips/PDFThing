@@ -113,6 +113,12 @@ public class PDFRecyclerViewAdapter extends RecyclerView.Adapter<PDFRecyclerView
 
     }
 
+    public void clear()
+    {
+        data.clear();
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getItemCount() {
         return data.size();
@@ -127,7 +133,7 @@ public class PDFRecyclerViewAdapter extends RecyclerView.Adapter<PDFRecyclerView
     public void addPage()
     {
         data.add(new PageData());
-        notifyDataSetChanged();
+        notifyItemChanged(data.size()-1);
     }
 
 

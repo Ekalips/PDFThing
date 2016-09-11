@@ -22,6 +22,7 @@ import android.print.PrintAttributes;
 import android.print.pdf.PrintedPdfDocument;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -36,8 +37,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.konifar.fab_transformation.FabTransformation;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -50,13 +54,15 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     static Context context;
     private Toolbar mToolbar;
+    FloatingActionButton fab;
+    Toolbar toolbarFooter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         context = this;
         initToolbar();
-
+        initFAB();
 
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
@@ -68,6 +74,59 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(new PDFRecyclerViewAdapter(datas,this,this));
     }
 
+    private void initFAB() {
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        toolbarFooter = (Toolbar) findViewById(R.id.toolbar_footer);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FabTransformation.with(fab)
+                        .transformTo(toolbarFooter);
+            }
+        });
+
+        toolbarFooter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FabTransformation.with(fab)
+                        .transformFrom(toolbarFooter);
+            }
+        });
+
+        ImageButton addPageBtn = (ImageButton) toolbarFooter.findViewById(R.id.add_page_btn);
+        ImageButton newFileBtn = (ImageButton) toolbarFooter.findViewById(R.id.new_file_btn);
+        ImageButton savePdfBtn = (ImageButton) toolbarFooter.findViewById(R.id.save_btn);
+
+        addPageBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((PDFRecyclerViewAdapter) recyclerView.getAdapter()).addPage();
+            }
+        });
+        savePdfBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ContextCompat.checkSelfPermission(context,
+                        Manifest.permission.READ_EXTERNAL_STORAGE)
+                        == PackageManager.PERMISSION_GRANTED) {
+                    saveToPDF();
+                }
+                else
+                {
+                    ActivityCompat.requestPermissions( (Activity) context,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},4);
+                }
+            }
+        });
+        newFileBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((PDFRecyclerViewAdapter)recyclerView.getAdapter()).clear();
+            }
+        });
+
+    }
 
 
     @Override
@@ -136,41 +195,19 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_add:
-                ((PDFRecyclerViewAdapter) recyclerView.getAdapter()).addPage();
-                return true;
-
-            case R.id.action_save:
-                if (ContextCompat.checkSelfPermission(context,
-                        Manifest.permission.READ_EXTERNAL_STORAGE)
-                        == PackageManager.PERMISSION_GRANTED) {
-                    saveToPDF();
-                }
-                else
-                {
-                    ActivityCompat.requestPermissions( this,
-                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},4);
-                }
-
-
-
-
-
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
-
+    public void onBackPressed() {
+        if (toolbarFooter.getVisibility() == View.VISIBLE)
+        {
+            FabTransformation.with(fab)
+                    .transformFrom(toolbarFooter);
         }
-    }
+        else super.onBackPressed();
 
+    }
 
     public void saveToPDF()
     {
@@ -216,6 +253,10 @@ public class MainActivity extends AppCompatActivity {
             else Toast.makeText(this,"Please, select image",Toast.LENGTH_LONG).show();
         }
     }
+
+
+
+
 
     public class VerticalSpaceItemDecoration extends RecyclerView.ItemDecoration {
 
