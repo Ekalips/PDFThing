@@ -78,6 +78,8 @@ public class PDFRecyclerViewAdapter extends RecyclerView.Adapter<PDFRecyclerView
         }
         else
         {
+            holder.imageView.setImageResource(R.drawable.add_iamge);
+            holder.imageView.setScaleType(ImageView.ScaleType.CENTER);
             holder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
